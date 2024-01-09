@@ -1,0 +1,20 @@
+services:
+  mysql:
+    container_name: project_nestJs
+    image: mysql:5.7.41
+    command: --lower_case_table_names=1
+    ports:
+      - 3306:3306
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: db_nestjs_jc
+      MYSQL_PASSWORD: local
+      MYSQL_DATABASE: db_nestjs_local
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - renassol_network
+
+networks:
+  renassol_network:
