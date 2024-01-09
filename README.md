@@ -29,6 +29,7 @@
 ## Installation
 
 ```bash
+$ node 16.17
 $ npm install
 ```
 
