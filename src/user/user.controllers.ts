@@ -1,11 +1,30 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, UseInterceptors} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Put,
+    UseGuards,
+    UseInterceptors
+} from "@nestjs/common";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {UpdatePatchUserDto} from "./dto/update-patch-user.dto";
 import {UserService} from "./user.service";
 import {LogInterceptor} from "../interceptors/log.interceptor";
 import {CustomParamId} from "../decorators/param-id.decorator";
+import {AuthUser} from "../decorators/auth-user.decorator";
+import {RoleEnum} from "../enums/role.enum";
+import {Roles} from "../decorators/roles.decorators";
+import {RoleGuard} from "../guards/role.guard";
+import {AuthGuard} from "../guards/auth.guard";
 
+@Roles(RoleEnum.Admin)
+@UseGuards(AuthGuard, RoleGuard)
 @Controller('user')
 export class UserControllers {
 
@@ -28,9 +47,9 @@ export class UserControllers {
         return this.userService.searchUser(id);
     }
 
+
     @Put(':id')
-    async updateUser(@Body() user: UpdateUserDto, @CustomParamId() id: number) {
-        console.log('ID RETORNA', id)
+    async updateUser(@Body() user: UpdateUserDto, @CustomParamId() id: number, @AuthUser() authUser) {
         return this.userService.updateUser(id, user);
     }
 

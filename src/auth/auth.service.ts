@@ -47,7 +47,7 @@ export class AuthService {
                 audience: this.audience
             })
         } catch (e) {
-            throw new BadRequestException(e);
+            throw new BadRequestException(e.message);
         }
     }
 

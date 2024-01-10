@@ -4,7 +4,7 @@ import {PrismaService} from "../prima/prisma.service";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {UpdatePatchUserDto} from "./dto/update-patch-user.dto";
 import * as moment from 'moment';
-import {makeLogger} from "ts-loader/dist/logger";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -12,8 +12,9 @@ export class UserService {
     constructor(private prisma: PrismaService) {
     }
     async createUser(user: CreateUserDto) {
-        const dataNascimento = moment(user.birthAt, 'DD/MM/YYYY').toDate()
+        const dataNascimento = moment(user.birthAt, 'DD/MM/YYYY').toDate();
         delete user.birthAt;
+        user.password = await this.hashPassword(user.password);
         const existeEmail = await this.prisma.user.findFirst({
             where: {
                 email: user.email
@@ -24,6 +25,10 @@ export class UserService {
             throw new BadRequestException('Usuário já cadastrado!');
         }
         return this.prisma.user.create({data: {birthAt: dataNascimento ? dataNascimento : null, ...user}});
+    }
+
+    async hashPassword(password: string) {
+        return await bcrypt.hash(password, await bcrypt.genSalt());
     }
 
     async listAllUsers() {
@@ -52,7 +57,10 @@ export class UserService {
             data.name = user.name
         }
         if (user.password) {
-            data.password = user.password
+            data.password = await this.hashPassword(user.password);
+        }
+        if (user.perfil) {
+            data.perfil = user.perfil
         }
         return this.prisma.user.update({
             data: data,
@@ -75,8 +83,13 @@ export class UserService {
             data.name = user.name
         }
         if (user.password) {
-            data.password = user.password
+            data.password = await this.hashPassword(user.password);
         }
+        if (user.perfil) {
+            data.perfil = user.perfil
+        }
+
+        console.warn('PASSWORD', data)
         return this.prisma.user.update({
             data: data,
             where: {

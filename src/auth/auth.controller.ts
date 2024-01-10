@@ -1,12 +1,12 @@
-import {BadRequestException, Body, Controller, Headers, Post, Req, UseGuards} from "@nestjs/common";
+import {BadRequestException, Body, Controller, Post, UseGuards} from "@nestjs/common";
 import {AuthService} from "./auth.service";
 import {AuthLoginDto} from "./dto/auth-login.dto";
 import {AuthRegisterDto} from "./dto/auth-register.dto";
 import {AuthForgetPassDto} from "./dto/auth-forget-pass.dto";
 import {AuthResetPassDto} from "./dto/auth-reset-pass.dto";
 import {UserService} from "../user/user.service";
-import {AuthMeDto} from "./dto/auth-me.dto";
 import {AuthGuard} from "../guards/auth.guard";
+import {AuthUser} from "../decorators/auth-user.decorator";
 
 @Controller('auth')
 export class AuthController {
@@ -19,6 +19,7 @@ export class AuthController {
         return this.authService.login(model.email, model.password);
     }
 
+    @UseGuards(AuthGuard)
     @Post('register')
     async createUser(@Body() model: AuthRegisterDto) {
         try {
@@ -38,10 +39,11 @@ export class AuthController {
         return this.authService.resetPass(model.password, model.access_token);
     }
 
+    // Criei um AuthGuard para manipular usuario logado com o @AuthUser pegando no header
     @UseGuards(AuthGuard)
     @Post('me')
-    async checkToken(@Req() req) {
-        return {me: 'ok', data: req.access_token};
+    async checkToken(@AuthUser() user) {
+        return user;
     }
 
 }
