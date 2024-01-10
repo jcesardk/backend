@@ -7,6 +7,7 @@ import {AuthResetPassDto} from "./dto/auth-reset-pass.dto";
 import {UserService} from "../user/user.service";
 import {AuthGuard} from "../guards/auth.guard";
 import {AuthUser} from "../decorators/auth-user.decorator";
+import {SkipThrottle} from "@nestjs/throttler";
 
 @Controller('auth')
 export class AuthController {
@@ -14,6 +15,7 @@ export class AuthController {
     constructor(private readonly authService: AuthService, private readonly userService: UserService) {
     }
 
+    @SkipThrottle()
     @Post('login')
     async loginUser(@Body() model: AuthLoginDto) {
         return this.authService.login(model.email, model.password);

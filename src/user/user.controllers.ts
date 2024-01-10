@@ -22,6 +22,7 @@ import {RoleEnum} from "../enums/role.enum";
 import {Roles} from "../decorators/roles.decorators";
 import {RoleGuard} from "../guards/role.guard";
 import {AuthGuard} from "../guards/auth.guard";
+import {ThrottlerGuard} from "@nestjs/throttler";
 
 @Roles(RoleEnum.Admin)
 @UseGuards(AuthGuard, RoleGuard)
@@ -37,6 +38,7 @@ export class UserControllers {
         return this.userService.createUser(user);
     }
 
+    // @UseGuards(ThrottlerGuard)
     @Get()
     async listUsers() {
         return this.userService.listAllUsers();

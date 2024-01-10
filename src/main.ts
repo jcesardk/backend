@@ -5,6 +5,10 @@ import {LogInterceptor} from "./interceptors/log.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // Solicitacao que vira de dominio externo permitido apenas dentro do cors
+  app.enableCors({
+    origin: ['google.com.br']
+  });
   app.useGlobalPipes(new ValidationPipe());
   // Interceptador global
   app.useGlobalInterceptors(new LogInterceptor());

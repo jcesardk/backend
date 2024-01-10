@@ -94,8 +94,6 @@ export class AuthService {
             throw new BadRequestException('Usuário ou senha inválido!');
         }
 
-        console.warn('LOGIN', password)
-
         if (!await bcrypt.compare(password, user.password)) {
             throw new BadRequestException('Usuário ou senha inválido!');
         }
