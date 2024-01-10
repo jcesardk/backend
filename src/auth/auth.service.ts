@@ -4,6 +4,7 @@ import {PrismaService} from "../prima/prisma.service";
 import {User} from "@prisma/client";
 import {UserService} from "../user/user.service";
 import {AuthRegisterDto} from "./dto/auth-register.dto";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -85,12 +86,17 @@ export class AuthService {
 
         const user = await this.prismaService.user.findFirst({
             where: {
-                email,
-                password
+                email
             }
         });
 
         if (!user) {
+            throw new BadRequestException('Usuário ou senha inválido!');
+        }
+
+        console.warn('LOGIN', password)
+
+        if (!await bcrypt.compare(password, user.password)) {
             throw new BadRequestException('Usuário ou senha inválido!');
         }
 
