@@ -4,11 +4,13 @@ import {AuthController} from "./auth.controller";
 import {UserModule} from "../user/user.module";
 import {AuthService} from "./auth.service";
 import {PrismaModule} from "../prima/prisma.module";
+import {environments} from "eslint-plugin-prettier";
+import * as process from "process";
 
 @Module({
     imports: [
         JwtModule.register({
-        secret: '(x!rm#lk)QFMgUz`,BN[}>`?wMAD6Eu|&qjMkEmv'
+        secret: process.env.JWT_SECRET
         }),
         forwardRef(() => UserModule),
         PrismaModule
