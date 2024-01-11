@@ -6,6 +6,7 @@ import {AuthService} from "./auth.service";
 import {PrismaModule} from "../prima/prisma.module";
 import {environments} from "eslint-plugin-prettier";
 import * as process from "process";
+import {FileModule} from "../file/file.module";
 
 @Module({
     imports: [
@@ -13,7 +14,8 @@ import * as process from "process";
         secret: process.env.JWT_SECRET
         }),
         forwardRef(() => UserModule),
-        PrismaModule
+        PrismaModule,
+        FileModule
     ],
     exports: [AuthModule, AuthService],
     controllers: [AuthController],
