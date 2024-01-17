@@ -1,14 +1,13 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
-import {PrismaService} from "../prima/prisma.service";
-import {User} from "@prisma/client";
 import {UserService} from "../user/user.service";
 import {AuthRegisterDto} from "./dto/auth-register.dto";
 import * as bcrypt from 'bcrypt';
 import {sendMail} from "../shared/util/mail";
-import * as process from "process";
 import {MailerService} from "@nestjs-modules/mailer";
-import path from "path";
+import {UserEntity} from "../user/entities/user.entity";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class AuthService {
@@ -18,14 +17,15 @@ export class AuthService {
 
     constructor(
         private readonly jwtService: JwtService,
-        private readonly prismaService: PrismaService,
         private readonly userService: UserService,
-        private readonly mailer: MailerService
+        private readonly mailer: MailerService,
+        @InjectRepository(UserEntity)
+        private userRepository: Repository<UserEntity>
     ) {
 
     }
 
-    createJwtToken(user: User) {
+    createJwtToken(user: UserEntity) {
         user.password = '';
         return this.jwtService.sign({
             user
@@ -58,7 +58,7 @@ export class AuthService {
     }
 
     async forgetPass(email: string){
-        const userClient = await this.prismaService.user.findFirst({
+        const userClient = await this.userRepository.findOne({
             where: {
                 email
             }
@@ -98,14 +98,14 @@ export class AuthService {
             }
 
             const pass = await this.userService.hashPassword(password);
-            const user = await this.prismaService.user.update({
-                data: {password: pass},
+            const user = await this.userRepository.update({id: data.id}, { password: pass });
+            const dataUser = await this.userRepository.findOne({
                 where: {
-                    id: Number(data.id)
+                    id: data.id
                 }
-            });
+            })
 
-            const token = this.createJwtToken(user);
+            const token = this.createJwtToken(dataUser);
             return {
                 ...user,
                 access_token: token
@@ -118,9 +118,9 @@ export class AuthService {
 
     async login(email: string, password: string){
 
-        const user = await this.prismaService.user.findFirst({
+        const user = await this.userRepository.findOne({
             where: {
-                email
+                email: email
             }
         });
 
@@ -132,7 +132,7 @@ export class AuthService {
             throw new BadRequestException('Usuário ou senha inválido!');
         }
 
-        const access_token = await this.createJwtToken(user);
+        const access_token = this.createJwtToken(user);
 
         return {
             ...user,
@@ -142,7 +142,7 @@ export class AuthService {
 
     async registerUser(model: AuthRegisterDto){
         const user = await this.userService.createUser(model);
-        const access_token = await this.createJwtToken(user);
+        const access_token = this.createJwtToken(user);
         return {
             ...user,
             access_token

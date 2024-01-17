@@ -1,12 +1,12 @@
 import {Injectable} from "@nestjs/common";
 import {writeFile} from "fs/promises";
 import {join} from "path";
-import {User} from "@prisma/client";
+import {UserEntity} from "../user/entities/user.entity";
 
 @Injectable()
 export class FileService {
 
-    async uoloadFile(user: User, file: Express.Multer.File) {
+    async uoloadFile(user: UserEntity, file: Express.Multer.File) {
         const path = join(__dirname, '../../storage/photos', `file-${user.id}.png`)
         return await writeFile(path, file.buffer);
     }

@@ -8,6 +8,9 @@ import {APP_GUARD} from "@nestjs/core";
 import {ConfigModule} from "@nestjs/config";
 import {MailerModule} from "@nestjs-modules/mailer";
 import {PugAdapter} from "@nestjs-modules/mailer/dist/adapters/pug.adapter";
+import {TypeOrmModule} from "@nestjs/typeorm";
+import * as process from "process";
+import {UserEntity} from "./user/entities/user.entity";
 
 @Module({
   imports: [
@@ -32,6 +35,16 @@ import {PugAdapter} from "@nestjs-modules/mailer/dist/adapters/pug.adapter";
               },
           },
       }),
+      TypeOrmModule.forRoot({
+          type: 'mysql',
+          host: process.env.MYSQL_HOST,
+          port: +process.env.MYSQL_PORT,
+          username: process.env.MYSQL_USERNAME,
+          password: process.env.MYSQL_PASSWORD,
+          database: process.env.MYSQL_DATABASE,
+          entities: [UserEntity],
+          synchronize: process.env.ENV === "dev",
+      })
   ],
   controllers: [AppController],
   providers: [AppService, {

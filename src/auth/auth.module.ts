@@ -3,18 +3,21 @@ import {JwtModule} from "@nestjs/jwt";
 import {AuthController} from "./auth.controller";
 import {UserModule} from "../user/user.module";
 import {AuthService} from "./auth.service";
-import {PrismaModule} from "../prima/prisma.module";
 import * as process from "process";
 import {FileModule} from "../file/file.module";
+import {TypeOrmModule} from "@nestjs/typeorm";
+import {UserEntity} from "../user/entities/user.entity";
 
 @Module({
     imports: [
         JwtModule.register({
-        secret: process.env.JWT_SECRET
+            secret: String(process.env.JWT_SECRETO),
         }),
         forwardRef(() => UserModule),
-        PrismaModule,
-        FileModule
+        FileModule,
+        TypeOrmModule.forFeature([
+            UserEntity
+        ]),
     ],
     exports: [AuthModule, AuthService],
     controllers: [AuthController],

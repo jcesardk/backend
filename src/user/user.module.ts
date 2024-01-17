@@ -1,13 +1,16 @@
 import {forwardRef, MiddlewareConsumer, Module, NestModule, RequestMethod} from "@nestjs/common";
 import {UserControllers} from "./user.controllers";
 import {UserService} from "./user.service";
-import {PrismaModule} from "../prima/prisma.module";
 import {UserIdCheckMiddleware} from "../middlewares/user-id-check.middleware";
 import {AuthModule} from "../auth/auth.module";
+import {TypeOrmModule} from "@nestjs/typeorm";
+import {UserEntity} from "./entities/user.entity";
 
 @Module({
     imports: [
-        PrismaModule,
+        TypeOrmModule.forFeature([
+            UserEntity
+        ]),
         forwardRef(() => AuthModule)
     ],
     controllers: [UserControllers],
