@@ -5,6 +5,10 @@ import {User} from "@prisma/client";
 import {UserService} from "../user/user.service";
 import {AuthRegisterDto} from "./dto/auth-register.dto";
 import * as bcrypt from 'bcrypt';
+import {sendMail} from "../shared/util/mail";
+import * as process from "process";
+import {MailerService} from "@nestjs-modules/mailer";
+import path from "path";
 
 @Injectable()
 export class AuthService {
@@ -15,7 +19,8 @@ export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
         private readonly prismaService: PrismaService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly mailer: MailerService
     ) {
 
     }
@@ -63,23 +68,52 @@ export class AuthService {
             throw new BadRequestException('Email inválido!');
         }
 
-        //TO DO: Enviar o email
+        const token = this.jwtService.sign({
+            id: userClient.id,
+        }, {
+            expiresIn: "15 minutes",
+            subject: String(userClient.id),
+            issuer: 'resetar-senha',
+            audience: 'users'
+        });
 
-        return true;
+        return await sendMail(
+            email,
+            'API Report - Sua nova senha',
+            'resetar-senha',
+            {token},
+        );
     }
 
     async resetPass(password: string, access_token: string){
-        // TO DO: validar token
 
-        const id = 0;
-        const user = await this.prismaService.user.update({
-            data: {password},
-            where: {
-                id
+        try {
+            const  data: any = this.jwtService.verify(access_token, {
+                issuer: 'resetar-senha',
+                audience: 'users'
+            })
+
+            if (isNaN(Number(data.id))) {
+                throw new BadRequestException('Token é invãlido')
             }
-        });
 
-        return this.createJwtToken(user);
+            const pass = await this.userService.hashPassword(password);
+            const user = await this.prismaService.user.update({
+                data: {password: pass},
+                where: {
+                    id: Number(data.id)
+                }
+            });
+
+            const token = this.createJwtToken(user);
+            return {
+                ...user,
+                access_token: token
+            }
+        } catch (e) {
+            throw new BadRequestException(e)
+        }
+
     }
 
     async login(email: string, password: string){
