@@ -11,10 +11,3 @@ services:
       MYSQL_USER: db_nestjs_jc
       MYSQL_PASSWORD: local
       MYSQL_DATABASE: db_nestjs_local
-    volumes:
-      - ./mysql-data:/var/lib/mysql
-    networks:
-      - renassol_network
-
-networks:
-  renassol_network:

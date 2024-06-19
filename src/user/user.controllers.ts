@@ -9,20 +9,20 @@ import {
     Post,
     Put,
     UseGuards,
-    UseInterceptors
-} from "@nestjs/common";
-import {CreateUserDto} from "./dto/create-user.dto";
-import {UpdateUserDto} from "./dto/update-user.dto";
-import {UpdatePatchUserDto} from "./dto/update-patch-user.dto";
-import {UserService} from "./user.service";
-import {LogInterceptor} from "../interceptors/log.interceptor";
-import {CustomParamId} from "../decorators/param-id.decorator";
-import {AuthUser} from "../decorators/auth-user.decorator";
-import {RoleEnum} from "../enums/role.enum";
-import {Roles} from "../decorators/roles.decorators";
-import {RoleGuard} from "../guards/role.guard";
-import {AuthGuard} from "../guards/auth.guard";
-import {ThrottlerGuard} from "@nestjs/throttler";
+    UseInterceptors,
+} from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePatchUserDto } from './dto/update-patch-user.dto';
+import { UserService } from './user.service';
+import { LogInterceptor } from '../interceptors/log.interceptor';
+import { CustomParamId } from '../decorators/param-id.decorator';
+import { AuthUser } from '../decorators/auth-user.decorator';
+import { RoleEnum } from '../enums/role.enum';
+import { Roles } from '../decorators/roles.decorators';
+import { RoleGuard } from '../guards/role.guard';
+import { AuthGuard } from '../guards/auth.guard';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Roles(RoleEnum.Admin)
 @UseGuards(AuthGuard, RoleGuard)
